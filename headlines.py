@@ -10,9 +10,9 @@ RSS_FEEDS = {'bbc': 'http://feeds.bbci.co.uk/news/rss.xml',
  'fox': 'http://feeds.foxnews.com/foxnews/latest',
  'iol': 'http://www.iol.co.za/cmlink/1.640'}
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 def get_news():
-    query = request.args.get("publication")
+    query = request.form.get("publication") #change request.args.get to request.form.get to change between form param in POST and args params in GET
     if not query or query.lower() not in RSS_FEEDS:
         publication = "bbc" #default publication is bbc
     else:
