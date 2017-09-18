@@ -1,4 +1,7 @@
 import feedparser
+import json #parse JSON safely
+import urllib # download data from web
+import urllib2
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -18,11 +21,24 @@ def get_news():
     else:
         publication = query.lower()
     feed = feedparser.parse(RSS_FEEDS[publication])
+    weather = get_weather("Kuala Lumpur?MY")
     return render_template("home.html",
-    articles=feed['entries'])
+    articles=feed['entries'],
+    weather=weather)
 
-    # will be making query like http://localhost:5000/?publication=bbc
-
+def get_weather(query):
+   api_url = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid=<APIKEY>'
+   query = urllib.quote(query)
+   url = api_url.format(query)
+   data = urllib2.urlopen(url).read()
+   parsed = json.loads(data)
+   weather = None
+   if parsed.get("weather"):
+       weather = {  "description":parsed["weather"][0]["description"], #"weather": ["description":"broken clouds"]
+                    "temperature":parsed["main"]["temp"], #"main":{"temp":29}
+                    "city":parsed["name"] #"name":"Kuala Lumpur"
+                    }
+   return weather
 
 if __name__ == '__main__':
     app.run(port=5000, debug= True)
